@@ -3,9 +3,9 @@
 set -e
 
 # Настройки
-PROJECT_DIR="/root/delivery-service"          # Путь до проекта (убедитесь, что папка существует и пуста!)
-REPO_URL="git@github.com:your/repo.git"       # SSH-ссылка на репозиторий
-SSH_KEY="/root/.ssh/id_ed25519"               # Путь к приватному SSH-ключу
+PROJECT_DIR="/root/delivery-service"
+REPO_URL="git@github.com:AleksRodi/delivery-service.git"
+SSH_KEY="/root/.ssh/id_ed25519"
 
 # 1. Проверяем SSH-ключ
 if [ ! -f "$SSH_KEY" ]; then
@@ -20,10 +20,24 @@ export GIT_SSH_COMMAND="ssh -i $SSH_KEY -o IdentitiesOnly=yes"
 if [ -d "$PROJECT_DIR/.git" ]; then
   echo "🔄 Обновляем репозиторий..."
   cd "$PROJECT_DIR"
+  
+  # Сохраняем изменения в deploy.sh если они есть
+  if ! git diff --quiet -- deploy.sh; then
+    echo "⚠️ Обнаружены локальные изменения в deploy.sh, создаем backup..."
+    cp deploy.sh deploy.sh.backup
+    git checkout -- deploy.sh  # Отменяем локальные изменения
+  fi
+  
   git pull
+  # Восстанавливаем backup если нужно
+  if [ -f "deploy.sh.backup" ]; then
+    echo "⚠️ Восстанавливаем backup deploy.sh..."
+    mv deploy.sh.backup deploy.sh
+    chmod +x deploy.sh
+  fi
 else
   echo "⏬ Клонируем репозиторий..."
-  rm -rf "$PROJECT_DIR" 2>/dev/null || true  # Очищаем папку, если она существует
+  rm -rf "$PROJECT_DIR" 2>/dev/null || true
   mkdir -p "$PROJECT_DIR"
   git clone "$REPO_URL" "$PROJECT_DIR"
   cd "$PROJECT_DIR"
@@ -31,9 +45,9 @@ fi
 
 # 4. Запускаем Docker-контейнеры
 echo "🐳 Пересобираем контейнеры..."
-docker compose down || true  # Останавливаем старые контейнеры (если есть)
+docker compose down || true
 docker compose pull
-docker compose build --no-cache  # Пересобираем без кеша (на случай проблем с зависимостями)
+docker compose build --no-cache
 docker compose up -d
 
 echo "✅ Деплой завершён. Проверьте контейнеры:"
