@@ -1,0 +1,55 @@
+# index.html (основной входной файл)
+cat > index.html << 'EOL'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delivery Service</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+</html>
+EOL
+
+# Основной JSX файл
+mkdir -p src
+cat > src/main.jsx << 'EOL'
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App.jsx'
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+)
+EOL
+
+# Компонент App
+cat > src/App.jsx << 'EOL'
+import React from 'react'
+
+export default function App() {
+  return (
+    <div>
+      <h1>Delivery Service Frontend</h1>
+    </div>
+  )
+}
+EOL
+
+# Конфигурация Vite
+cat > vite.config.js << 'EOL'
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    port: 3000
+  }
+})
+EOL
