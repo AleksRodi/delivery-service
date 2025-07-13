@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "http://localhost:8000", // или ваш продовый адрес
+  baseURL: process.env.REACT_APP_API_URL || "http://localhost:8000",
 });
 
 instance.interceptors.request.use(config => {
