@@ -9,6 +9,7 @@ from app.api import (
     payment_settings_router,
     delivery_settings_router,
 )
+from app.api.telegram_webhook import router as telegram_webhook_router
 
 app = FastAPI()
 
@@ -20,6 +21,7 @@ app.include_router(customer_router)
 app.include_router(order_router)
 app.include_router(payment_settings_router)
 app.include_router(delivery_settings_router)
+app.include_router(telegram_webhook_router)
 
 @app.get("/")
 def read_root():
