@@ -1,0 +1,26 @@
+name: Deploy to Test VM
+
+on:
+  push:
+    branches: [ main ]  # Триггер на пуш в main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VM_IP }}          # IP вашей VM
+          username: ${{ secrets.VM_USER }}    # Логин (например, ubuntu)
+          key: ${{ secrets.VM_SSH_KEY }}      # Приватный ключ (id_ed25519 из шага 2)
+          script: |
+            cd /path/to/your/project          # Путь на VM
+            git pull origin main              # Обновляем код
+            # Далее команды для перезапуска сервисов:
+            # docker-compose up -d --build     # Если используете Docker
+            # npm install && npm run build     # Если Node.js
+            # systemctl restart nginx          # Если нужно перезагрузить сервер
